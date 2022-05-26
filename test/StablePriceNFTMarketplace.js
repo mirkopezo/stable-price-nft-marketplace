@@ -94,37 +94,27 @@ describe("StablePriceNFTMarketplace", function () {
   });
 
   describe("Cancel sell order", function () {
-    it("should cancel active order if caller is seller", async function () {
+    beforeEach(async function () {
       const usdPrice = ethers.utils.parseEther("100");
 
       await nftMarketplace
         .connect(seller)
         .createSellOrder(nftContract.address, 0, usdPrice);
+    });
 
+    it("should cancel active order if caller is seller", async function () {
       await nftMarketplace.connect(seller).cancelSellOrder(0);
 
       expect(await nftContract.ownerOf(0)).to.equal(seller.address);
     });
 
     it("should not cancel order if caller is not seller", async function () {
-      const usdPrice = ethers.utils.parseEther("100");
-
-      await nftMarketplace
-        .connect(seller)
-        .createSellOrder(nftContract.address, 0, usdPrice);
-
       await expect(
         nftMarketplace.connect(buyer).cancelSellOrder(0)
       ).to.be.revertedWith("InvalidCaller");
     });
 
     it("should not cancel order if order is inactive", async function () {
-      const usdPrice = ethers.utils.parseEther("100");
-
-      await nftMarketplace
-        .connect(seller)
-        .createSellOrder(nftContract.address, 0, usdPrice);
-
       await nftMarketplace.connect(seller).cancelSellOrder(0);
 
       await expect(
